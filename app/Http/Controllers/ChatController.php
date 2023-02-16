@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\User;
 use App\Models\Conversation;
 use App\Models\Message;
+use Illuminate\Validation\Rule;
 
 class ChatController extends Controller
 {
@@ -26,12 +27,14 @@ class ChatController extends Controller
             ]);
     }
 
-    public function showConversation(Conversation $conversation)
+    public function showConversation($conversationId)
     {
         // Retrieve the messages for the given conversation
-        $messages = Message::where('conversation_id', $conversation->id)->get();
+        $messages = Message::where('conversation_id', $conversationId)->get();
 
-        return view('chat.show', compact('conversation', 'messages'));
+        return response()->json([
+            'messages' => $messages
+        ]);
     }
 
     public function startConversation(User $user)
@@ -53,19 +56,28 @@ class ChatController extends Controller
             $conversation->save();
         }
 
-        return redirect()->route('conversation', $conversation);
+        return new JsonResource($conversation);
     }
 
-    public function sendMessage(Conversation $conversation, Request $request)
+    public function sendMessage($conversationId, Request $request)
     {
+        $request->validate([
+            'message' => 'required|string|max:255',
+            'conversation_id' => [
+                'required',
+                Rule::exists('conversations', 'id')->where(function ($query) use ($conversationId) {
+                    $query->where('id', $conversationId);
+                }),
+            ],
+        ]);
         // Create a new message for the given conversation
         $message = new Message();
-        $message->conversation_id = $conversation->id;
+        $message->conversation_id = $conversationId;
         $message->user_id = auth()->id();
         $message->message = $request->input('message');
         $message->save();
 
-        return redirect()->route('conversation', $conversation);
+        return response()->json('Message sent successfully');
     }
 }
 
