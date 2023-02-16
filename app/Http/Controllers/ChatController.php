@@ -8,12 +8,14 @@ use App\Models\User;
 use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ChatController extends Controller
 {
     public function index()
     {
-        // Retrieve all users except the authenticated user
+        try{
+            // Retrieve all users except the authenticated user
         $users = User::where('id', '!=', auth()->id())->get();
 
         // Retrieve the conversations for the authenticated user
@@ -25,21 +27,36 @@ class ChatController extends Controller
                 'users' => $users,
                 'conversations' => $conversations
             ]);
+        }catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Unable to retrieve data.',
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function showConversation($conversationId)
     {
+        try{
         // Retrieve the messages for the given conversation
         $messages = Message::where('conversation_id', $conversationId)->get();
 
         return response()->json([
             'messages' => $messages
         ]);
+        }catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Unable to retrieve conversation messages.',
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        
     }
 
     public function startConversation($userId)
     {
-        // Check if a conversation between the authenticated user and the selected user already exists
+        try{
+            // Check if a conversation between the authenticated user and the selected user already exists
         $conversation = Conversation::where(function ($query) use ($userId) {
             $query->where('user1_id', auth()->id())
                 ->where('user2_id', $userId);
@@ -57,27 +74,48 @@ class ChatController extends Controller
         }
 
         return new JsonResource($conversation);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Unable to start conversation.',
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        
     }
 
     public function sendMessage($conversationId, Request $request)
     {
-        $request->validate([
-            'message' => 'required|string|max:255',
-            'conversation_id' => [
-                'required',
-                Rule::exists('conversations', 'id')->where(function ($query) use ($conversationId) {
-                    $query->where('id', $conversationId);
-                }),
-            ],
-        ]);
-        // Create a new message for the given conversation
-        $message = new Message();
-        $message->conversation_id = $conversationId;
-        $message->user_id = auth()->id();
-        $message->message = $request->input('message');
-        $message->save();
-
-        return response()->json('Message sent successfully');
+        try{
+            $request->validate([
+                'message' => 'required|string|max:255',
+                'conversation_id' => [
+                    'required',
+                    Rule::exists('conversations', 'id')->where(function ($query) use ($conversationId) {
+                        $query->where('id', $conversationId);
+                    }),
+                ],
+            ]);
+            // Create a new message for the given conversation
+            $message = new Message();
+            $message->conversation_id = $conversationId;
+            $message->user_id = auth()->id();
+            $message->message = $request->input('message');
+            $message->save();
+    
+            return response()->json('Message sent successfully');
+        }
+        catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Validation error.',
+                'message' => $e->getMessage(),
+                'errors' => $e->errors()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Unable to send message.',
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
 
