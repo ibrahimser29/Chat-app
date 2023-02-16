@@ -52,7 +52,7 @@ class ChatController extends Controller
         if (!$conversation) {
             $conversation = new Conversation();
             $conversation->user1_id = auth()->id();
-            $conversation->user2_id = $user->id;
+            $conversation->user2_id = $userId;
             $conversation->save();
         }
 
