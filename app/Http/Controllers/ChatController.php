@@ -37,14 +37,14 @@ class ChatController extends Controller
         ]);
     }
 
-    public function startConversation(User $user)
+    public function startConversation($userId)
     {
         // Check if a conversation between the authenticated user and the selected user already exists
-        $conversation = Conversation::where(function ($query) use ($user) {
+        $conversation = Conversation::where(function ($query) use ($userId) {
             $query->where('user1_id', auth()->id())
-                ->where('user2_id', $user->id);
-        })->orWhere(function ($query) use ($user) {
-            $query->where('user1_id', $user->id)
+                ->where('user2_id', $userId);
+        })->orWhere(function ($query) use ($userId) {
+            $query->where('user1_id', $userId)
                 ->where('user2_id', auth()->id());
         })->first();
 
