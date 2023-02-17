@@ -36,7 +36,7 @@ class AuthController extends Controller
 
         throw_if(!Auth::attempt($validatedData),UnauthorizedException::class);
         try{
-             /** @var \App\Models\MyUserModel $user **/
+             /** @var \App\Models\User $user **/
             $user = Auth::user();
             $token = $user->createToken('token')->plainTextToken;
 
