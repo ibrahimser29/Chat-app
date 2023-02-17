@@ -13,18 +13,28 @@ class AuthController extends Controller
 {
     public function register(RegisterRequest $request)
     {
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->success([
-            'token' => $token,
-            'user' => $user,
-        ]);
+        try{
+            $input = $request->only(['name','email']);
+            $input['password'] =  Hash::make($request->password);
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $image_name = time() . '.' . $image->getClientOriginalExtension();
+                $destinationPath = public_path('/images');
+                $image->move($destinationPath, $image_name);
+                $input['image'] = $image_name;
+            }
+            $user = User::create($input);
+    
+            $token = $user->createToken('token')->plainTextToken;
+    
+            return response()->success([
+                'token' => $token,
+                'user' => $user,
+            ]);
+        
+        }catch(Exception $e){
+            return response()->error($e->getMessage());
+        }
     }
 
     public function login(Request $request)
