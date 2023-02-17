@@ -74,13 +74,9 @@ class ChatController extends Controller
         try{
             $request->validate([
                 'message' => 'required|string|max:255',
-                'conversation_id' => [
-                    'required',
-                    Rule::exists('conversations', 'id')->where(function ($query) use ($conversationId) {
-                        $query->where('id', $conversationId);
-                    }),
-                ],
             ]);
+            $conversation = Conversation::find($conversationId);
+            if(!$conversation) return response()->error('No Such Chat');
             // Create a new message for the given conversation
             $message = new Message();
             $message->conversation_id = $conversationId;
