@@ -2,13 +2,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\User;
 use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 class ChatController extends Controller
 {
@@ -23,15 +20,12 @@ class ChatController extends Controller
             ->orWhere('user2_id', auth()->id())
             ->get();
 
-            return response()->json([
+            return response()->success([
                 'users' => $users,
                 'conversations' => $conversations
             ]);
         }catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Unable to retrieve data.',
-                'message' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error($e->getMessage());
         }
     }
 
@@ -41,14 +35,9 @@ class ChatController extends Controller
         // Retrieve the messages for the given conversation
         $messages = Message::where('conversation_id', $conversationId)->get();
 
-        return response()->json([
-            'messages' => $messages
-        ]);
+        return response()->success(['messages' => $messages]);
         }catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Unable to retrieve conversation messages.',
-                'message' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error($e->getMessage());
         }
         
     }
@@ -73,12 +62,9 @@ class ChatController extends Controller
             $conversation->save();
         }
 
-        return new JsonResource($conversation);
+        return response()->success(['conversation'=>$conversation]);
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Unable to start conversation.',
-                'message' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error($e->getMessage());
         }
         
     }
@@ -102,19 +88,9 @@ class ChatController extends Controller
             $message->message = $request->input('message');
             $message->save();
     
-            return response()->json('Message sent successfully');
-        }
-        catch (ValidationException $e) {
-            return response()->json([
-                'error' => 'Validation error.',
-                'message' => $e->getMessage(),
-                'errors' => $e->errors()
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->success(['message'=>'Message sent successfully']);
         }catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Unable to send message.',
-                'message' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error($e->getMessage());
         }
     }
 }
