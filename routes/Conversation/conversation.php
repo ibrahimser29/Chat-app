@@ -7,6 +7,6 @@ use App\Http\Controllers\ChatController;
 Route::prefix('/conversation')->middleware('auth:sanctum')->group(function(){
     Route::get('/',[ChatController::class,'index']);
     Route::get('/{conversationId}',[ChatController::class,'showConversation']);
-    Route::get('/{userId}',[ChatController::class,'startConversation']);
-    Route::get('/{conversationId}/send-message',[ChatController::class,'sendMessage']);
+    Route::post('/{userId}',[ChatController::class,'startConversation']);
+    Route::post('/{conversationId}/send-message',[ChatController::class,'sendMessage']);
 });
