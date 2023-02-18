@@ -1,6 +1,44 @@
-import React from 'react'
-
+import React, {useState} from 'react'
+import { SendLoginRequest } from '../api/auth/auth';
 function Login() {
+  const [email,setEmail] = useState('');
+  const [password,setPassword] = useState('');
+  const [errors, setErrors] = useState({});
+  const [clientErrors, setClientErrors] = useState({});
+  const validateForm = () => {
+    const newErrors = {};
+    if (email == '') {
+      newErrors.email = ["Email is required"];
+    }
+    if (password == '') {
+      newErrors.password = ["Password is required"];
+    }else if (password.length < 8){
+      newErrors.password = ["Password must be more than 8 characters"];
+    }
+    console.log(newErrors)
+    setClientErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
+  const handleLogin = (event) => {
+    event.preventDefault();
+    if(!validateForm()) return;
+    let cardentials = {email:email,password:password};
+    SendLoginRequest(cardentials).then(resp => {
+      if(resp.data.status == 'success') {
+          localStorage.setItem('user', JSON.stringify(resp.data.data.user))
+          localStorage.setItem('token',resp.data.data.token)
+          //navigate('/shippments')
+      }
+    })
+    .catch(error => {
+      if(error.response.status == 422){
+       setErrors(error.response.data.errors);
+       console.log(error.response.data.errors)
+      }else{
+        setErrors({response:error.response.data.message});
+      }
+    });
+  }
   return (
     <section className="vh-100">
   <div className="container py-5 h-100">
@@ -11,23 +49,22 @@ function Login() {
       </div>
       <div className="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
         <form>
+        {Object.values(errors).length > 0 && Object.values(errors).map((error,i)=>{
+          return <p className='alert-danger'>{error}</p>
+        })}
           <div className="form-outline mb-4">
-            <input type="email" id="form1Example13" className="form-control form-control-lg" />
-            <label className="form-label">Email address</label>
+           <label className="form-label">Email address</label>
+            <input type="email"  className="form-control form-control-lg" onChange={(e)=> setEmail(e.target.value)} />
+            {clientErrors.email && <p className='text-danger'>{clientErrors.email[0]}</p>}
           </div>
           <div className="form-outline mb-4">
-            <input type="password" id="form1Example23" className="form-control form-control-lg" />
             <label className="form-label" >Password</label>
+            <input type="password"  className="form-control form-control-lg" onChange={(e)=> setPassword(e.target.value)} />
+            {clientErrors.password && <p className='text-danger'>{clientErrors.password[0]}</p>}
           </div>
 
-          <div className="d-flex justify-content-around align-items-center mb-4">
-            <div className="form-check">
-              <input className="form-check-input" type="checkbox" value="" id="form1Example3" checked />
-              <label className="form-check-label" for="form1Example3"> Remember me </label>
-            </div>
-            <a href="#!">Forgot password?</a>
-          </div>
-          <button type="submit" className="btn btn-primary btn-lg btn-block">Sign in</button>
+      
+          <button onClick={(event)=>handleLogin(event)} className="btn btn-primary btn-lg btn-block">Sign in</button>
         </form>
       </div>
     </div>
