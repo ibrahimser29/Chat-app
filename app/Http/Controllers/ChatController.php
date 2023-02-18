@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Events\MessageSent;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Conversation;
@@ -83,7 +84,7 @@ class ChatController extends Controller
             $message->user_id = auth()->id();
             $message->message = $request->input('message');
             $message->save();
-    
+            broadcast(new MessageSent())->toOthers();
             return response()->success(['message'=>'Message sent successfully']);
         }catch (\Exception $e) {
             return response()->error($e->getMessage());
