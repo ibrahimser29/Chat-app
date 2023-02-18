@@ -1,6 +1,9 @@
 import React, {useState} from 'react'
 import { SendLoginRequest } from '../api/auth/auth';
+import { useNavigate } from "react-router-dom";
+import { Link } from 'react-router-dom';
 function Login() {
+  const navigate = useNavigate();
   const [email,setEmail] = useState('');
   const [password,setPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -27,7 +30,7 @@ function Login() {
       if(resp.data.status == 'success') {
           localStorage.setItem('user', JSON.stringify(resp.data.data.user))
           localStorage.setItem('token',resp.data.data.token)
-          //navigate('/shippments')
+          navigate('/chats')
       }
     })
     .catch(error => {
@@ -65,6 +68,7 @@ function Login() {
 
       
           <button onClick={(event)=>handleLogin(event)} className="btn btn-primary btn-lg btn-block">Sign in</button>
+          <div className='text-center pt-3'>New here? <Link to='/register'>Create Account</Link></div>
         </form>
       </div>
     </div>
