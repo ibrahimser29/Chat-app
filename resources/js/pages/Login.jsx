@@ -1,10 +1,8 @@
 import React, {useState} from 'react'
 import { SendLoginRequest } from '../api/auth/auth';
-import { useNavigate } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import api from '../api/api';
 function Login() {
-  const navigate = useNavigate();
   const [email,setEmail] = useState('');
   const [password,setPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -31,7 +29,7 @@ function Login() {
           localStorage.setItem('user', JSON.stringify(resp.data.data.user))
           localStorage.setItem('token',resp.data.data.token)
           api.defaults.headers.common = {'Authorization': `bearer ${resp.data.data.token}`}
-          navigate('/chats')
+          window.location.href = '/chats';//to refresh while navigating instead of react navigate
     })
     .catch(error => {
       if(error.response.status == 422){
