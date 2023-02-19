@@ -12,5 +12,6 @@ export const sendStartConversationRequest = (userid) => {
     return api.get(url+`/${userid}`);
 }
 export const sendMessageRequest = (coversationId,message) => {
-    return api.post(url+`/${coversationId}/send-message`,message);
+    
+    return api.post(url+`/${coversationId}/send-message`,{message:message});
 }
