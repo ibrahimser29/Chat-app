@@ -34,7 +34,7 @@ class ChatController extends Controller
     {
         try{
         // Retrieve the messages for the given conversation
-        $messages = Message::where('conversation_id', $conversationId)->get();
+        $messages = Message::with('user')->where('conversation_id', $conversationId)->get();
 
         return response()->success(['messages' => $messages]);
         }catch (\Exception $e) {
