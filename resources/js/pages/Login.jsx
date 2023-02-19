@@ -28,12 +28,10 @@ function Login() {
     if(!validateForm()) return;
     let cardentials = {email:email,password:password};
     SendLoginRequest(cardentials).then(resp => {
-      if(resp.data.status == 'success') {
           localStorage.setItem('user', JSON.stringify(resp.data.data.user))
           localStorage.setItem('token',resp.data.data.token)
           api.defaults.headers.common = {'Authorization': `bearer ${resp.data.data.token}`}
           navigate('/chats')
-      }
     })
     .catch(error => {
       if(error.response.status == 422){
