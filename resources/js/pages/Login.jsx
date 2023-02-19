@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import { SendLoginRequest } from '../api/auth/auth';
 import { useNavigate } from "react-router-dom";
 import { Link } from 'react-router-dom';
+import api from '../api/api';
 function Login() {
   const navigate = useNavigate();
   const [email,setEmail] = useState('');
@@ -30,6 +31,7 @@ function Login() {
       if(resp.data.status == 'success') {
           localStorage.setItem('user', JSON.stringify(resp.data.data.user))
           localStorage.setItem('token',resp.data.data.token)
+          api.defaults.headers.common = {'Authorization': `bearer ${resp.data.data.token}`}
           navigate('/chats')
       }
     })
