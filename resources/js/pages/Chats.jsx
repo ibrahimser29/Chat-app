@@ -3,10 +3,13 @@ import ChatsLeftSideBar from '../components/ChatsLeftSideBar'
 import ChatsRightSideBar from '../components/ChatsRightSideBar'
 import { useNavigate } from "react-router-dom";
 import { sendRetrieveUsersRequest } from '../api/conversation/conversation'
+import { sendStartConversationRequest } from '../api/conversation/conversation';
 function Chats() {
     const navigate = useNavigate();
     const [users,setUsers] = useState([]);
     const [conversations,setConversations] = useState([]);
+    const [conversation,setConversation] = useState({});
+    const [selectedUser,setSlectedUser] = useState({});
     const [errors,setErrors] = useState({});
     const getUsersAndConvetsations = () => {
         sendRetrieveUsersRequest().then((resp)=>{
@@ -14,6 +17,14 @@ function Chats() {
             setConversations(resp.data.data.conversations)
         }).catch((error)=>{
             setErrors({...error,users:error.response.data.message})
+        })
+    }
+    const startConversation = (user) => {
+        setSlectedUser(user)
+        sendStartConversationRequest(user.id).then((resp)=>{
+            setConversation(resp.data.data.conversation)
+        }).catch((error)=>{
+            setErrors({...error,conversation:error.response.data.message})
         })
     }
     useEffect(()=>{
@@ -44,8 +55,10 @@ function Chats() {
 
                     <div class="row no-gutters">
                         <ChatsLeftSideBar users={users} conversations={conversations}
-                         errors={errors.users} />
-                        <ChatsRightSideBar />
+                         errors={errors.users} startConversation={startConversation} />
+                        <ChatsRightSideBar
+                        selectedUser={selectedUser}
+                         conversation={conversation} errors={errors.conversation} />
                     </div>
                 </div>
 
