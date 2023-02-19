@@ -68,7 +68,9 @@ body{margin-top:20px;}
     -ms-flex-direction: column;
     flex-direction: column;
 }
-
+.users h4{
+    padding: 10px 1rem;
+}
 
 /************************************************
 	************************************************
