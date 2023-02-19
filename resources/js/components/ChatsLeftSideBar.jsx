@@ -1,5 +1,6 @@
 import React from 'react'
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSearch } from '@fortawesome/free-solid-svg-icons'
 function ChatsLeftSideBar(props) {
   return (
     <div className="col-xl-4 col-lg-4 col-md-4 col-sm-3 col-3">
@@ -10,7 +11,7 @@ function ChatsLeftSideBar(props) {
                                     <input className="form-control" placeholder="Search"/>
                                     <div className="input-group-btn">
                                         <button type="button" className="btn btn-info">
-                                            <i className="fa fa-search"></i>
+                                        <FontAwesomeIcon  icon={faSearch} />
                                         </button>
                                     </div>
                                 </div>
@@ -36,7 +37,7 @@ function ChatsLeftSideBar(props) {
                                     <input className="form-control" placeholder="Search"/>
                                     <div className="input-group-btn">
                                         <button type="button" className="btn btn-info">
-                                            <i className="fa fa-search"></i>
+                                        <FontAwesomeIcon  icon={faSearch} />
                                         </button>
                                     </div>
                                 </div>

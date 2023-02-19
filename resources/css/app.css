@@ -39,7 +39,7 @@ body{margin-top:20px;}
     margin: 0;
 }
 
-.chat-search-box .input-group .input-group-btn .btn i {
+.chat-search-box .input-group .input-group-btn .btn svg {
     font-size: 1.2rem;
     line-height: 100%;
     vertical-align: middle;
