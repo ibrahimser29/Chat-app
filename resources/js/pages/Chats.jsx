@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { sendRetrieveUsersRequest } from '../api/conversation/conversation'
 import { sendStartConversationRequest } from '../api/conversation/conversation';
 function Chats() {
+    console.log('render chatss')
     const navigate = useNavigate();
     const [users,setUsers] = useState([]);
     const [conversations,setConversations] = useState([]);
@@ -38,7 +39,7 @@ function Chats() {
     <div class="page-title">
         <div class="row gutters">
             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
-                <h5 class="title">Chat App</h5>
+                <h5 class="title">Chat App {errors.pusher != undefined && errors.pusher }</h5>
             </div>
             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12"> </div>
         </div>
@@ -56,6 +57,7 @@ function Chats() {
                     <div class="row no-gutters">
                         <ChatsLeftSideBar users={users} conversations={conversations}
                          errors={errors.users} startConversation={startConversation} />
+                         
                         <ChatsRightSideBar
                         selectedUser={selectedUser}
                          conversation={conversation} errors={errors.conversation} />
