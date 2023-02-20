@@ -5,7 +5,7 @@ function ChatsLeftSideBar(props) {
   return (
     <div className="col-xl-4 col-lg-4 col-md-4 col-sm-3 col-3">
                             {props.errors != null && props.errors != undefined ?
-                            <div>{props.errors}</div> : props.conversations.length == 0 ? (<div className="users-container">
+                            <div>{props.errors}</div> : props.conversations.length == 0 ?  (<div className="users-container">
                             <div className="chat-search-box">
                                 <div className="input-group">
                                     <input className="form-control" placeholder="Search"/>
@@ -18,7 +18,7 @@ function ChatsLeftSideBar(props) {
                             </div>
                             <ul className="users scrollContainer">
                                 <h4>Suggestions</h4>
-                                { props.loading == true ? <div className="loading">Loading...</div> : props.users.map((user,i)=>{
+                                { props.users.map((user,i)=>{
                                     return  <li key={i} onClick={()=>props.startConversation(user.id)} className="person" data-chat="person1">
                                     <div className="user">
                                         <img src={`/images/${user.image}`} alt="Retail Admin"/>

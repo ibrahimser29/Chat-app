@@ -1,33 +1,56 @@
-import React, { useState, useEffect} from 'react'
+import React, { useReducer, useEffect} from 'react'
 import ChatsLeftSideBar from '../components/ChatsLeftSideBar'
 import ChatsRightSideBar from '../components/ChatsRightSideBar'
 import { useNavigate } from "react-router-dom";
 import { sendRetrieveUsersRequest } from '../api/conversation/conversation'
 import { sendStartConversationRequest } from '../api/conversation/conversation';
 function Chats() {
-    console.log('render chatss')
     const navigate = useNavigate();
-    const [loading,setLoading] = useState(true);
-    const [users,setUsers] = useState([]);
-    const [conversations,setConversations] = useState([]);
-    const [conversation,setConversation] = useState({});
-    const [selectedUser,setSlectedUser] = useState({});
-    const [errors,setErrors] = useState({});
+    const initialState = {
+         loading: true,
+         users:[],
+         conversations:[],
+         conversation:{},
+         selectedUser:{},
+         errors:[]
+        };
+    function reducer(state, action) {
+        switch (action.type) {
+        case 'SET_LOADING':
+            return {...state,loading:action.payload};
+        case 'SET_USERS':
+            return {...state,users:action.payload};
+        case 'SET_CONVERSATIONS':
+            console.log('paload'+action.payload)
+            return {...state,conversations:action.payload};
+        case 'SET_CONVERSATION':
+            return {...state,conversation:action.payload};
+        case 'SET_SELECTED_USER':
+            return {...state,selectedUser:action.payload};
+        case 'SET_ERRORS':
+            return {...state,errors:action.payload};
+        default:
+            return state;
+        }
+    }
+          
+    const [state, dispatch] = useReducer(reducer, initialState);
     const getUsersAndConvetsations = () => {
         sendRetrieveUsersRequest().then((resp)=>{
-            setUsers(resp.data.data.users)
-            setConversations(resp.data.data.conversations)
-            setLoading(false)
+            dispatch({type:'SET_CONVERSATIONS',payload:resp.data.data.conversations});
+            dispatch({type:'SET_USERS',payload:resp.data.data.users});
         }).catch((error)=>{
-            setErrors({...error,users:error.response.data.message})
+            dispatch({type:'SET_ERRORS',payload:{...state.errors,payload:error.response.data.message}});
+        }).finally(()=>{
+            dispatch({type:'SET_LOADING',payload:false});
         })
     }
     const startConversation = (user) => {
-        setSlectedUser(user)
+        dispatch({type:'SET_SELECTED_USER',payload:user});
         sendStartConversationRequest(user.id).then((resp)=>{
-            setConversation(resp.data.data.conversation)
+            dispatch({type:'SET_CONVERSATION',payload:resp.data.data.conversation});
         }).catch((error)=>{
-            setErrors({...error,conversation:error.response.data.message})
+            dispatch({type:'SET_ERRORS',payload:{...state.errors,payload:error.response.data.message}});
         })
     }
     useEffect(()=>{
@@ -41,7 +64,7 @@ function Chats() {
     <div class="page-title">
         <div class="row gutters">
             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
-                <h5 class="title">Chat App {errors.pusher != undefined && errors.pusher }</h5>
+                <h5 class="title">Chat App</h5>
             </div>
             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12"> </div>
         </div>
@@ -57,13 +80,13 @@ function Chats() {
                 <div class="card m-0">
 
                     <div class="row no-gutters">
-                        
-                        <ChatsLeftSideBar users={users} conversations={conversations} loading={loading}
-                         errors={errors.users} startConversation={startConversation} />
-                         
+                        {state.loading == true ? <div className="text-center loading-chats">Loading...</div> : (<>
+                            <ChatsLeftSideBar users={state.users} conversations={state.conversations} 
+                          errors={state.errors.users} startConversation={startConversation} />
                         <ChatsRightSideBar
-                        selectedUser={selectedUser}
-                         conversation={conversation} errors={errors.conversation} />
+                        selectedUser={state.selectedUser}
+                         conversation={state.conversation} errors={state.errors.conversation} />
+                        </>)}
                     </div>
                 </div>
 

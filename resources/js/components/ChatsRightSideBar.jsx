@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useReducer } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 import { sendShowConversationRequest } from '../api/conversation/conversation';
@@ -6,18 +6,37 @@ import { sendMessageRequest } from '../api/conversation/conversation';
 import Spinner from 'react-bootstrap/Spinner';
 import Pusher from 'pusher-js';
 function ChatsRightSideBar(props) {
-    console.log('render sidebar')
- const sender = JSON.parse(localStorage.getItem('user')).id;
- const [messages,setMessages] = useState([]);
- const [message,setMessage] = useState('');
- const [error,setError] = useState('');
- const [loading,setLoading] = useState(true);
- const [sending,setSending] = useState(false);//loader when sending message
+    const initialState = {
+        sender: JSON.parse(localStorage.getItem('user')).id,
+        loading: true,
+        sending: false,//loader for sending new message
+        messages:[],
+        message:'',
+        error:''
+       };
+   function reducer(state, action) {
+       switch (action.type) {
+       case 'SET_LOADING':
+           return {...state,loading:action.payload};
+       case 'SET_SENDING':
+            return {...state,sending:action.payload};
+       case 'SET_MESSAGES':
+           return {...state,messages:action.payload};
+       case 'SET_MESSAGE':
+           return {...state,message:action.payload};
+       case 'SET_ERROR':
+           return {...state,errors:action.payload};
+       default:
+           return state;
+       }
+   }
+         
+ const [state, dispatch] = useReducer(reducer, initialState);
+
  const padTo2Digits = (num) => {
     return String(num).padStart(2, '0');
   }
   const configurePusher = () => {
-    console.log(messages)
     Pusher.logToConsole = true;
 
     var pusher = new Pusher('d359ae523485fe28ebcd', {
@@ -26,30 +45,30 @@ function ChatsRightSideBar(props) {
 
     var channel = pusher.subscribe('chat');
     channel.bind('new-message', function(message) {
-        console.log(messages)
         //setMessages([...messages,message.message])
     });
   }
  const getMessages = ()=>{
     sendShowConversationRequest(props.conversation.id).then((resp)=>{
-        setMessages(resp.data.data.messages);
-        setLoading(false)
+        dispatch({type:'SET_MESSAGES',payload:resp.data.data.messages});
     }).catch((error)=>{
-        setError(error.response.data.message)
+        dispatch({type:'SET_ERROR',payload:{...state.error,payload:error.response.data.message}});
+    }).finally(()=>{
+        dispatch({type:'SET_LOADING',payload:false});
     })
  }
  const handelSendMessage = () => {
-        setSending(true);
+        dispatch({type:'SET_SENDING',payload:true});
         sendMessageRequest(props.conversation.id,message).then((resp)=>{
-            setMessage('')
+            dispatch({type:'SET_MESSAGE',payload:''});
         }).catch((error)=>{
             alert(error.response.data.message);
         }).finally(()=>{
-            setSending(false);
+            dispatch({type:'SET_SENDING',payload:false});
         })
  }
- const renderMessages = messages.length == 0 ? 'start chatting' : messages.map((message,i)=>{
-    return message.user_id ==  sender ? (<li key={i} className="chat-right">
+ const renderMessages = state.messages.length == 0 ? 'start chatting' : state.messages.map((message,i)=>{
+    return state.message.user_id ==  state.sender ? (<li key={i} className="chat-right">
   <div className="chat-hour">{ padTo2Digits(new Date(message.created_at).getHours()) + ':' +  padTo2Digits(new Date(message.created_at).getMinutes())}<span className="fa fa-check-circle"></span></div>
   <div className="chat-text">{message.message}</div>
   <div className="chat-avatar">
@@ -70,7 +89,7 @@ function ChatsRightSideBar(props) {
  },[props.conversation])
  useEffect(()=>{
     configurePusher();
- },[messages])
+ },[state.messages])
   return (
     <div className="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9">
                             {Object.keys(props.selectedUser).length == 0 ? (<div className="selected-user">
@@ -80,11 +99,11 @@ function ChatsRightSideBar(props) {
                             </div>
                             <div className="chat-container">
                                 <ul className="chat-box scrollContainer">
-                                    {loading ? <div>Loading...</div> : error != '' ? <div>{error}</div> : renderMessages }   
+                                    {state.loading ? <div>Loading...</div> : state.error != '' ? <div>{state.error}</div> : renderMessages }   
                                 </ul>
                                 <div className="form-group mt-3 mb-0 d-flex align-items-center">
-                                    <textarea value={message} onChange={(e)=>setMessage(e.target.value)} className="form-control" rows="1" placeholder="Type your message here..."></textarea>
-                                    {sending ? ( <Spinner animation="border" role="status">
+                                    <textarea value={state.message} onChange={(e)=>dispatch({type:'SET_MESSAGE',payload:e.target.value})} className="form-control" rows="1" placeholder="Type your message here..."></textarea>
+                                    {state.sending ? ( <Spinner animation="border" role="status">
                             <span className="visually-hidden">Loading...</span>
                             </Spinner>) : (<FontAwesomeIcon className='ml-2 text-primary' icon={faPaperPlane} onClick={()=>handelSendMessage()} />)}
                                 </div>
