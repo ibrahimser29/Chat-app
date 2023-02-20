@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 import { sendShowConversationRequest } from '../api/conversation/conversation';
 import { sendMessageRequest } from '../api/conversation/conversation';
+import Spinner from 'react-bootstrap/Spinner';
 import Pusher from 'pusher-js';
 function ChatsRightSideBar(props) {
     console.log('render sidebar')
@@ -10,6 +11,8 @@ function ChatsRightSideBar(props) {
  const [messages,setMessages] = useState([]);
  const [message,setMessage] = useState('');
  const [error,setError] = useState('');
+ const [loading,setLoading] = useState(true);
+ const [sending,setSending] = useState(false);//loader when sending message
  const padTo2Digits = (num) => {
     return String(num).padStart(2, '0');
   }
@@ -30,15 +33,19 @@ function ChatsRightSideBar(props) {
  const getMessages = ()=>{
     sendShowConversationRequest(props.conversation.id).then((resp)=>{
         setMessages(resp.data.data.messages);
+        setLoading(false)
     }).catch((error)=>{
         setError(error.response.data.message)
     })
  }
  const handelSendMessage = () => {
+        setSending(true);
         sendMessageRequest(props.conversation.id,message).then((resp)=>{
             setMessage('')
         }).catch((error)=>{
             alert(error.response.data.message);
+        }).finally(()=>{
+            setSending(false);
         })
  }
  const renderMessages = messages.length == 0 ? 'start chatting' : messages.map((message,i)=>{
@@ -73,13 +80,13 @@ function ChatsRightSideBar(props) {
                             </div>
                             <div className="chat-container">
                                 <ul className="chat-box scrollContainer">
-                                    {error != '' ? <div>{error}</div> : renderMessages }
-                                    
-                                    
+                                    {loading ? <div>Loading...</div> : error != '' ? <div>{error}</div> : renderMessages }   
                                 </ul>
                                 <div className="form-group mt-3 mb-0 d-flex align-items-center">
                                     <textarea value={message} onChange={(e)=>setMessage(e.target.value)} className="form-control" rows="1" placeholder="Type your message here..."></textarea>
-                                    <FontAwesomeIcon className='ml-2 text-primary' icon={faPaperPlane} onClick={()=>handelSendMessage()} />
+                                    {sending ? ( <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                            </Spinner>) : (<FontAwesomeIcon className='ml-2 text-primary' icon={faPaperPlane} onClick={()=>handelSendMessage()} />)}
                                 </div>
                             </div></>)}
                             

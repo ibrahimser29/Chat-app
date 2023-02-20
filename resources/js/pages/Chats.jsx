@@ -7,6 +7,7 @@ import { sendStartConversationRequest } from '../api/conversation/conversation';
 function Chats() {
     console.log('render chatss')
     const navigate = useNavigate();
+    const [loading,setLoading] = useState(true);
     const [users,setUsers] = useState([]);
     const [conversations,setConversations] = useState([]);
     const [conversation,setConversation] = useState({});
@@ -16,6 +17,7 @@ function Chats() {
         sendRetrieveUsersRequest().then((resp)=>{
             setUsers(resp.data.data.users)
             setConversations(resp.data.data.conversations)
+            setLoading(false)
         }).catch((error)=>{
             setErrors({...error,users:error.response.data.message})
         })
@@ -55,7 +57,8 @@ function Chats() {
                 <div class="card m-0">
 
                     <div class="row no-gutters">
-                        <ChatsLeftSideBar users={users} conversations={conversations}
+                        
+                        <ChatsLeftSideBar users={users} conversations={conversations} loading={loading}
                          errors={errors.users} startConversation={startConversation} />
                          
                         <ChatsRightSideBar

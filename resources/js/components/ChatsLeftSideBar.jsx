@@ -18,7 +18,7 @@ function ChatsLeftSideBar(props) {
                             </div>
                             <ul className="users scrollContainer">
                                 <h4>Suggestions</h4>
-                                {props.users.map((user,i)=>{
+                                { props.loading == true ? <div className="loading">Loading...</div> : props.users.map((user,i)=>{
                                     return  <li key={i} onClick={()=>props.startConversation(user.id)} className="person" data-chat="person1">
                                     <div className="user">
                                         <img src={`/images/${user.image}`} alt="Retail Admin"/>
