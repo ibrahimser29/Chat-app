@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Conversation;
 use App\Models\Message;
-use Illuminate\Validation\Rule;
+
 
 class ChatController extends Controller
 {
@@ -78,13 +78,15 @@ class ChatController extends Controller
             ]);
             $conversation = Conversation::find($conversationId);
             if(!$conversation) return response()->error('No Such Chat');
+            $user1_id = $conversation->user1_id;
+            $user2_id = $conversation->user2_id;
             // Create a new message for the given conversation
             $message = new Message();
             $message->conversation_id = $conversationId;
-            $message->user_id = auth()->id();
+            $message->user_id = Auth()->user()->id;
             $message->message = $request->input('message');
             $message->save();
-            event(new MessageSent(Message::with('user')->find($message->id)));
+            event(new MessageSent(Message::with('user')->find($message->id),$user1_id,$user2_id));
             //broadcast(new MessageSent($request->input('message')))->toOthers();
             return response()->success(['message'=>'Message sent successfully']);
         }catch (\Exception $e) {

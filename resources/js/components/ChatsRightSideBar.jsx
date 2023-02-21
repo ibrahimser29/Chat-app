@@ -8,6 +8,8 @@ import Pusher from 'pusher-js';
 function ChatsRightSideBar(props) {
     const initialState = {
         sender: JSON.parse(localStorage.getItem('user')).id,
+        user1_id : props.conversation.user1_id,
+        user2_id : props.conversation.user2_id,
         loading: true,
         sending: false,//loader for sending new message
         messages:[],
@@ -40,12 +42,20 @@ function ChatsRightSideBar(props) {
     Pusher.logToConsole = true;
 
     var pusher = new Pusher('d359ae523485fe28ebcd', {
-      cluster: 'us2'
+      cluster: 'us2',
+      authEndpoint: 'http://localhost:8000/api/broadcasting/auth',
+      auth: {
+      headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      Accept: 'application/json',
+      },
+    }
     });
-
-    var channel = pusher.subscribe('chat');
+    const channelName = 'private-chat.'+state.user1_id+'.'+state.user2_id;
+    var channel = pusher.subscribe(channelName);
     channel.bind('new-message', function(message) {
-        //setMessages([...messages,message.message])
+        console.log('ss');
+        dispatch({type:'SET_MESSAGES',payload:[...state.messages,message.message]})
     });
   }
  const getMessages = ()=>{
@@ -59,7 +69,9 @@ function ChatsRightSideBar(props) {
  }
  const handelSendMessage = () => {
         dispatch({type:'SET_SENDING',payload:true});
-        sendMessageRequest(props.conversation.id,message).then((resp)=>{
+        sendMessageRequest(props.conversation.id,state.message).then((resp)=>{
+            console.log(state.loading)
+            configurePusher();
             dispatch({type:'SET_MESSAGE',payload:''});
         }).catch((error)=>{
             alert(error.response.data.message);
@@ -87,9 +99,6 @@ function ChatsRightSideBar(props) {
  useEffect(()=>{
     getMessages();
  },[props.conversation])
- useEffect(()=>{
-    configurePusher();
- },[state.messages])
   return (
     <div className="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9">
                             {Object.keys(props.selectedUser).length == 0 ? (<div className="selected-user">

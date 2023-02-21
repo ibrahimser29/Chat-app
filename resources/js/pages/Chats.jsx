@@ -10,8 +10,8 @@ function Chats() {
          loading: true,
          users:[],
          conversations:[],
-         conversation:{},
-         selectedUser:{},
+         conversation:null,
+         selectedUser:null,
          errors:[]
         };
     function reducer(state, action) {
@@ -80,12 +80,17 @@ function Chats() {
                 <div class="card m-0">
 
                     <div class="row no-gutters">
-                        {state.loading == true ? <div className="text-center loading-chats">Loading...</div> : (<>
+                        {state.loading == true  ? <div className="text-center loading-chats">Loading...</div> : (<>
                             <ChatsLeftSideBar users={state.users} conversations={state.conversations} 
                           errors={state.errors.users} startConversation={startConversation} />
-                        <ChatsRightSideBar
-                        selectedUser={state.selectedUser}
-                         conversation={state.conversation} errors={state.errors.conversation} />
+                          {(state.conversation != null && state.selectedUser != null) ?
+                           (<ChatsRightSideBar
+                            selectedUser={state.selectedUser}
+                             conversation={state.conversation} errors={state.errors.conversation} />)
+                             : ( <div className="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9"><div className="selected-user">
+                             <span>Select User To Chat</span>
+                         </div><div className='chat-container'></div></div>)
+                          }
                         </>)}
                     </div>
                 </div>
