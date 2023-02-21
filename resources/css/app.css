@@ -366,7 +366,7 @@ body{margin-top:20px;}
     border-top: 1px solid white;
 }
 ul.scrollContainer{
-    height: 400px;
+    height: 70vh;
     overflow-y: scroll;
 }
 ul {
