@@ -17,16 +17,16 @@ function ChatsLeftSideBar(props) {
                                 </div>
                             </div>
                             <ul className="users scrollContainer">
-                                <h4>Suggestions</h4>
+                                
                                 { props.users.map((user,i)=>{
-                                    return  <li key={i} onClick={()=>props.startConversation(user.id)} className="person" data-chat="person1">
+                                    return  <li key={i} onClick={()=>props.startConversation(user)} className="person" data-chat="person1">
                                     <div className="user">
                                         <img src={`/images/${user.image}`} alt="Retail Admin"/>
-                                        <span className="status busy"></span>
+                                        <span className=""></span>
                                     </div>
                                     <p className="name-time">
                                         <span className="name">{user.name}</span>
-                                        <span className="time">15/02/2019</span>
+                                        <span className="time"></span>
                                     </p>
                                 </li>
                                 })}
@@ -47,11 +47,11 @@ function ChatsLeftSideBar(props) {
                                     return  <li key={i} onClick={()=>props.startConversation(user)} className="person" data-chat="person1">
                                     <div className="user">
                                         <img src={`/images/${user.image}`} alt="Retail Admin"/>
-                                        <span className="status busy"></span>
+                                        <span className=""></span>
                                     </div>
                                     <p className="name-time">
                                         <span className="name">{user.name}</span>
-                                        <span className="time">15/02/2019</span>
+                                        <span className="time"></span>
                                     </p>
                                 </li>
                                 })}
