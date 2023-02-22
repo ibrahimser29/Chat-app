@@ -5,6 +5,7 @@ import { sendShowConversationRequest } from '../api/conversation/conversation';
 import { sendMessageRequest } from '../api/conversation/conversation';
 import Spinner from 'react-bootstrap/Spinner';
 import Pusher from 'pusher-js';
+import Message from './Message';
 function ChatsRightSideBar(props) {
     let sender =  JSON.parse(localStorage.getItem('user')).id;
       let   user1_id =  props.conversation.user1_id;
@@ -35,9 +36,6 @@ function ChatsRightSideBar(props) {
          
  const [state, dispatch] = useReducer(reducer, initialState);
 
- const padTo2Digits = (num) => {
-    return String(num).padStart(2, '0');
-  }
   const configurePusher = () => {
     Pusher.logToConsole = true;
 
@@ -78,21 +76,8 @@ function ChatsRightSideBar(props) {
         })
  }
  const renderMessages = state.messages.length == 0 ? 'start chatting' : state.messages.map((message,i)=>{
-    return state.message.user_id ==  sender ? (<li key={i} className="chat-right">
-  <div className="chat-hour">{ padTo2Digits(new Date(message.created_at).getHours()) + ':' +  padTo2Digits(new Date(message.created_at).getMinutes())}<span className="fa fa-check-circle"></span></div>
-  <div className="chat-text">{message.message}</div>
-  <div className="chat-avatar">
-      <img src={`/images/${message.user.image}`} alt="Retail Admin"/>
-      <div className="chat-name">{message.user.name}</div>
-  </div>
-</li>) : (<li key={i} className="chat-left">
-     <div className="chat-avatar">
-         <img src={`/images/${message.user.image}`} alt="Retail Admin"/>
-         <div className="chat-name">{message.user.name}</div>
-     </div>
-     <div className="chat-text">{message.message}</div>
-     <div className="chat-hour">{ padTo2Digits(new Date(message.created_at).getHours()) + ':' +  padTo2Digits(new Date(message.created_at).getMinutes())}<span className="fa fa-check-circle"></span></div>
- </li>)
+    return message.user_id ==  sender ? (<Message key={i} message={message} right={true} />) 
+    : (<Message  key={i} message={message} right={false} />)
   })
  useEffect(()=>{
     getMessages();
