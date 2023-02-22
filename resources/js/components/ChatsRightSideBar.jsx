@@ -6,10 +6,10 @@ import { sendMessageRequest } from '../api/conversation/conversation';
 import Spinner from 'react-bootstrap/Spinner';
 import Pusher from 'pusher-js';
 function ChatsRightSideBar(props) {
+    let sender =  JSON.parse(localStorage.getItem('user')).id;
+      let   user1_id =  props.conversation.user1_id;
+       let user2_id = props.conversation.user2_id;
     const initialState = {
-        sender: JSON.parse(localStorage.getItem('user')).id,
-        user1_id : props.conversation.user1_id,
-        user2_id : props.conversation.user2_id,
         loading: true,
         sending: false,//loader for sending new message
         messages:[],
@@ -51,11 +51,11 @@ function ChatsRightSideBar(props) {
       },
     }
     });
-    const channelName = 'private-chat.'+state.user1_id+'.'+state.user2_id;
+    const channelName = 'private-chat.'+user1_id+'.'+user2_id;
     var channel = pusher.subscribe(channelName);
     channel.bind('new-message', function(message) {
-        console.log('ss');
-        dispatch({type:'SET_MESSAGES',payload:[...state.messages,message.message]})
+        console.log(state.messages);
+        getMessages();
     });
   }
  const getMessages = ()=>{
@@ -70,8 +70,6 @@ function ChatsRightSideBar(props) {
  const handelSendMessage = () => {
         dispatch({type:'SET_SENDING',payload:true});
         sendMessageRequest(props.conversation.id,state.message).then((resp)=>{
-            console.log(state.loading)
-            configurePusher();
             dispatch({type:'SET_MESSAGE',payload:''});
         }).catch((error)=>{
             alert(error.response.data.message);
@@ -80,7 +78,7 @@ function ChatsRightSideBar(props) {
         })
  }
  const renderMessages = state.messages.length == 0 ? 'start chatting' : state.messages.map((message,i)=>{
-    return state.message.user_id ==  state.sender ? (<li key={i} className="chat-right">
+    return state.message.user_id ==  sender ? (<li key={i} className="chat-right">
   <div className="chat-hour">{ padTo2Digits(new Date(message.created_at).getHours()) + ':' +  padTo2Digits(new Date(message.created_at).getMinutes())}<span className="fa fa-check-circle"></span></div>
   <div className="chat-text">{message.message}</div>
   <div className="chat-avatar">
@@ -98,6 +96,7 @@ function ChatsRightSideBar(props) {
   })
  useEffect(()=>{
     getMessages();
+    configurePusher();
  },[props.conversation])
   return (
     <div className="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9">
@@ -107,7 +106,7 @@ function ChatsRightSideBar(props) {
                                 <span>To: <span className="name">{props.selectedUser.name}</span></span>
                             </div>
                             <div className="chat-container">
-                                <ul className="chat-box scrollContainer">
+                                <ul id='chat-box' className="chat-box scrollContainer">
                                     {state.loading ? <div>Loading...</div> : state.error != '' ? <div>{state.error}</div> : renderMessages }   
                                 </ul>
                                 <div className="form-group mt-3 mb-0 d-flex align-items-center">

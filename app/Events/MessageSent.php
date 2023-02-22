@@ -24,7 +24,7 @@ class MessageSent implements ShouldBroadcast
     {
         $this->message = $message;
         $this->user1_id = $user1_id;
-        $this->$user2_id = $user2_id;
+        $this->user2_id = $user2_id;
     }
 
     /**
