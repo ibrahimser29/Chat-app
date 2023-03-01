@@ -30,8 +30,7 @@ function Login() {
           localStorage.setItem('token',resp.data.data.token)
           api.defaults.headers.common = {'Authorization': `bearer ${resp.data.data.token}`}
           window.location.href = '/chats';//to refresh while navigating instead of react navigate
-    })
-    .catch(error => {
+    }).catch(error => {
       if(error.response.status == 422){
        setErrors(error.response.data.errors);
        console.log(error.response.data.errors)
