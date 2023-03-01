@@ -43,8 +43,9 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
-        throw_if(!Auth::attempt($validatedData),UnauthorizedException::class);
+        if(!Auth::attempt($validatedData)){
+            return response()->error('not authorized');
+        }
         try{
              /** @var \App\Models\User $user **/
             $user = Auth::user();
