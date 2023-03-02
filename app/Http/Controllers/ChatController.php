@@ -85,7 +85,7 @@ class ChatController extends Controller
             $message->user_id = Auth()->user()->id;
             $message->message = $request->input('message');
             $message->save();
-            broadcast(new MessageSent(Message::with('user')->find($message->id),$user1_id,$user2_id))->toOthers();
+            broadcast(new MessageSent(Message::with('user')->find($message->id),$user1_id,$user2_id));
             return response()->success(['message'=>'Message sent successfully']);
         }catch (\Exception $e) {
             return response()->error($e->getMessage());
