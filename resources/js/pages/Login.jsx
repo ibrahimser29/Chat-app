@@ -1,7 +1,8 @@
 import React, {useState} from 'react'
 import { SendLoginRequest } from '../api/auth/auth';
-import { Link } from 'react-router-dom';
+import { json, Link } from 'react-router-dom';
 import api from '../api/api';
+import Cookies from 'js-cookie';
 function Login() {
   const [email,setEmail] = useState('');
   const [password,setPassword] = useState('');
@@ -26,9 +27,11 @@ function Login() {
     if(!validateForm()) return;
     let cardentials = {email:email,password:password};
     SendLoginRequest(cardentials).then(resp => {
-          localStorage.setItem('user', JSON.stringify(resp.data.data.user))
-          localStorage.setItem('token',resp.data.data.token)
-          api.defaults.headers.common = {'Authorization': `bearer ${resp.data.data.token}`}
+          const time = new Date().getTime();
+          const expireTime = time + 60 * 60 * 1000;
+          const expireDate = new Date(expireTime);
+          Cookies.set('token', resp.data.data.token,{expireDate:expireDate});
+          localStorage.setItem('user',JSON.stringify(resp.data.data.user));
           window.location.href = '/chats';//to refresh while navigating instead of react navigate
     }).catch(error => {
       if(error.response.status == 422){
