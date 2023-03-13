@@ -30,7 +30,7 @@ function Login() {
           const time = new Date().getTime();
           const expireTime = time + 60 * 60 * 1000;
           const expireDate = new Date(expireTime);
-          Cookies.set('token', resp.data.data.token,{ httpOnly: true, expires: expireDate });
+          Cookies.set('token', resp.data.data.token,{expireDate:expireDate});
           localStorage.setItem('user',JSON.stringify(resp.data.data.user));
           window.location.href = '/chats';//to refresh while navigating instead of react navigate
     }).catch(error => {
