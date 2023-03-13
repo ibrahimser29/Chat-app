@@ -44,7 +44,7 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
         if(!Auth::attempt($validatedData)){
-            return response()->error('not authorized');
+            return response()->error('Wrong Email or Password');
         }
         try{
              /** @var \App\Models\User $user **/

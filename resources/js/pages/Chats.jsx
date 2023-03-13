@@ -54,9 +54,6 @@ function Chats() {
         })
     }
     useEffect(()=>{
-        if(localStorage.getItem('user') == null || localStorage.getItem('user') == undefined){
-            navigate('/')
-        }
         getUsersAndConvetsations();
     },[])
   return (
